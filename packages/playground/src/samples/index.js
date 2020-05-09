@@ -26,6 +26,7 @@ import nullable from "./nullable";
 import nullField from "./null";
 import errorSchema from "./errorSchema";
 import defaults from "./defaults";
+import cms from "./cms";
 
 export const samples = {
   Simple: simple,
@@ -56,4 +57,5 @@ export const samples = {
   Nullable: nullable,
   ErrorSchema: errorSchema,
   Defaults: defaults,
+  CMS: cms,
 };

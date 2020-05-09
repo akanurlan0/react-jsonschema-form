@@ -162,6 +162,120 @@ class GeoPosition extends Component {
   }
 }
 
+class CMSAlert extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { ...props.formData };
+  }
+
+  onChange(name) {
+    return event => {
+      // this.setState({ [name]: parseFloat(event.target.value) });
+      // setImmediate(() => this.props.onChange(this.state));
+    };
+  }
+
+  render() {
+    const { title, body, type } = this.state;
+    return (
+      <div className="alert">
+        <div className={"alert " + type} role="alert">
+          <h4 className="alert-heading">{title}</h4>
+          <p>{body}</p>
+        </div>
+      </div>
+    );
+  }
+}
+
+class CMSBlockWithImage extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { ...props.formData };
+  }
+
+  onChange(name) {
+    return event => {
+      // this.setState({ [name]: parseFloat(event.target.value) });
+      // setImmediate(() => this.props.onChange(this.state));
+    };
+  }
+
+  render() {
+    const { title, body, imageS3Url } = this.state;
+    return (
+      <div className="container">
+        <div className="row">
+          <div className="col-xs-4">
+            <div className="panel panel-default">
+              <div className="panel-body">
+                Here goes an image from S3: {imageS3Url}
+              </div>
+            </div>
+          </div>
+          <div className="col-xs-8">
+            <h4>{title}</h4>
+            <p>{body}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+class CMSParagraph extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { ...props.formData };
+  }
+
+  onChange(name) {
+    return event => {
+      // this.setState({ [name]: parseFloat(event.target.value) });
+      // setImmediate(() => this.props.onChange(this.state));
+    };
+  }
+
+  render() {
+    const { body } = this.state;
+    return <p>{body}</p>;
+  }
+}
+
+class CMSAppeals extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { ...props.formData };
+  }
+
+  onChange(name) {
+    return event => {
+      // this.setState({ [name]: parseFloat(event.target.value) });
+      // setImmediate(() => this.props.onChange(this.state));
+    };
+  }
+
+  render() {
+    const state = this.state;
+
+    return (
+      <ul>
+        {Object.keys(state).map((key, item) => {
+          <li>
+            <ul>
+              <li>{state[key].regionName}</li>
+              <li>{state[key].title}</li>
+              <li>
+                <a href="#">Посмотреть</a>
+              </li>
+            </ul>
+          </li>;
+        })}
+      </ul>
+    );
+  }
+}
+
 class Editor extends Component {
   constructor(props) {
     super(props);
@@ -591,7 +705,13 @@ class Playground extends Component {
                   console.log("submitted formData", formData);
                   console.log("submit event", e);
                 }}
-                fields={{ geo: GeoPosition }}
+                fields={{
+                  geo: GeoPosition,
+                  alert: CMSAlert,
+                  blockWithImage: CMSBlockWithImage,
+                  paragraph: CMSParagraph,
+                  appeals: CMSAppeals,
+                }}
                 validate={validate}
                 onBlur={(id, value) =>
                   console.log(`Touched ${id} with value ${value}`)
