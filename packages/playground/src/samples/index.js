@@ -27,6 +27,7 @@ import nullField from "./null";
 import errorSchema from "./errorSchema";
 import defaults from "./defaults";
 import cms from "./cms";
+import cmsConstructor from "./cmsConstructor";
 
 export const samples = {
   Simple: simple,
@@ -58,4 +59,15 @@ export const samples = {
   ErrorSchema: errorSchema,
   Defaults: defaults,
   CMS: cms,
+  CMSConstructor: cmsConstructor,
+};
+
+export const globalCMSState = {
+  jsonSchema: null,
+  uiSchema: null,
+  formData: null,
+  playground: null,
+  blockCounter: 0,
+  resetCounter: 0,
+  previewMode: false,
 };

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import MonacoEditor from "react-monaco-editor";
-import { samples } from "./samples";
+import { samples, globalCMSState } from "./samples";
 import "react-app-polyfill/ie11";
 import Form, { withTheme } from "@rjsf/core";
 import DemoFrame from "./DemoFrame";
@@ -203,6 +203,8 @@ class CMSBlockWithImage extends Component {
 
   render() {
     const { title, body, imageS3Url } = this.state;
+
+    // fetch s3 file
     return (
       <div className="container">
         <div className="row">
@@ -272,6 +274,262 @@ class CMSAppeals extends Component {
           </li>;
         })}
       </ul>
+    );
+  }
+}
+
+class CMSPromo extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { ...props.formData };
+  }
+
+  onChange(name) {
+    return event => {
+      this.setState({ [name]: parseFloat(event.target.value) });
+      setImmediate(() => this.props.onChange(this.state));
+    };
+  }
+
+  render() {
+    const { title, img, text } = this.state;
+    return (
+      <div>
+        <div className="row">
+          <div className="col-xs-6">
+            <h2>{title}</h2>
+            <p>{text}</p>
+          </div>
+          <div className="col-xs-6">
+            <img src={img} style={{ width: "100%" }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+class CMSPromoEditor extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { ...props.formData };
+  }
+
+  onChange(name) {
+    return event => {
+      this.setState({ [name]: event.target.value });
+      setImmediate(() => this.props.onChange(this.state));
+    };
+  }
+
+  render() {
+    const { title, img, text } = this.state;
+    return (
+      <div>
+        <h3>Promo:</h3>
+        <div className="row">
+          <div className="col-xs-12">
+            <label>Заголовок</label>
+            <input
+              className="form-control"
+              type="text"
+              value={title}
+              onChange={this.onChange("title")}
+            />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-xs-12">
+            <label>Изображение</label>
+            <input
+              className="form-control"
+              type="text"
+              value={img}
+              onChange={this.onChange("img")}
+            />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-xs-12">
+            <label>Текст</label>
+            <textarea
+              rows="5"
+              className="form-control"
+              value={text}
+              onChange={this.onChange("text")}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+class CMSConstructor extends Component {
+  constructor(props) {
+    super(props);
+    // console.log(props);
+    console.log(globalCMSState);
+    this.state = { ...props.formData };
+  }
+
+  onChange(name) {
+    return event => {
+      this.setState({ [name]: parseFloat(event.target.value) });
+      setImmediate(() => this.props.onChange(this.state));
+    };
+  }
+
+  addPromo() {
+    var newJsonSchema = Object.assign({}, globalCMSState.jsonSchema);
+    var newUiSchema = Object.assign({}, globalCMSState.uiSchema);
+    var newFormData = Object.assign({}, globalCMSState.formData);
+
+    var promoSchema = {
+      type: "object",
+      title: "Block with image",
+      properties: {
+        title: {
+          type: "string",
+          title: "Title",
+          description: "A sample title",
+        },
+        img: {
+          type: "string",
+          title: "icon card",
+          description: "A sample body",
+        },
+        text: {
+          type: "string",
+          title: "text",
+          description: "id-goes-here",
+        },
+      },
+      required: ["title", "img", "text"],
+    };
+
+    var promoUiSchema = {
+      "ui:field": "CmsPromo",
+    };
+
+    var promoFormData = {
+      title: "Заголовок промо",
+      img:
+        "https://cdn.pixabay.com/photo/2020/05/13/18/58/nature-5168551_1280.jpg",
+      text:
+        "JSONSchema is limited for describing how a given data type should be rendered as a form input component. That`s why this lib introduces the concept of UI schema. A UI schema is basically an object literal providing information on how the form should be rendered, while the JSON schema tells what.",
+    };
+
+    newJsonSchema.properties[
+      "block" + globalCMSState.blockCounter
+    ] = promoSchema;
+    newUiSchema["block" + globalCMSState.blockCounter] = promoUiSchema;
+    newFormData["block" + globalCMSState.blockCounter] = promoFormData;
+
+    globalCMSState.playground.onSchemaEdited(newJsonSchema);
+    globalCMSState.playground.onFormDataEdited(newFormData);
+    globalCMSState.playground.onUISchemaEdited(newUiSchema);
+
+    globalCMSState.blockCounter++;
+  }
+
+  redraw() {
+    var newJsonSchema = Object.assign({}, globalCMSState.jsonSchema);
+    var newUiSchema = Object.assign({}, globalCMSState.uiSchema);
+    var newFormData = Object.assign({}, globalCMSState.formData);
+
+    var prefix = globalCMSState.previewMode ? "Editor" : "";
+
+    for (const [key, value] of Object.entries(newUiSchema)) {
+      console.log(key);
+      if (value["ui:field"]) {
+        if (value["ui:field"].startsWith("CmsPromo")) {
+          value["ui:field"] = "CmsPromo" + prefix;
+        }
+      }
+    }
+
+    newJsonSchema.title = "Hello " + globalCMSState.resetCounter;
+    globalCMSState.resetCounter++;
+
+    globalCMSState.playground.onSchemaEdited(newJsonSchema);
+    globalCMSState.playground.onFormDataEdited(newFormData);
+    globalCMSState.playground.onUISchemaEdited(newUiSchema);
+  }
+
+  switchPreview() {
+    globalCMSState.previewMode = !globalCMSState.previewMode;
+    this.redraw();
+  }
+
+  addPromoEditor(e) {
+    var newJsonSchema = Object.assign({}, globalCMSState.jsonSchema);
+    var newUiSchema = Object.assign({}, globalCMSState.uiSchema);
+    var newFormData = Object.assign({}, globalCMSState.formData);
+
+    var promoSchema = {
+      type: "object",
+      title: "Block with image",
+      properties: {
+        title: {
+          type: "string",
+          title: "Title",
+          description: "A sample title",
+        },
+        img: {
+          type: "string",
+          title: "icon card",
+          description: "A sample body",
+        },
+        text: {
+          type: "string",
+          title: "text",
+          description: "id-goes-here",
+        },
+      },
+      required: ["title", "img", "text"],
+    };
+
+    var promoUiSchema = {
+      "ui:field": "CmsPromoEditor",
+    };
+
+    var promoFormData = {
+      title: "Заголовок промо",
+      img:
+        "https://cdn.pixabay.com/photo/2020/05/13/18/58/nature-5168551_1280.jpg",
+      text:
+        "JSONSchema is limited for describing how a given data type should be rendered as a form input component. That`s why this lib introduces the concept of UI schema. A UI schema is basically an object literal providing information on how the form should be rendered, while the JSON schema tells what.",
+    };
+
+    newJsonSchema.properties[
+      "block" + globalCMSState.blockCounter
+    ] = promoSchema;
+    newUiSchema["block" + globalCMSState.blockCounter] = promoUiSchema;
+    newFormData["block" + globalCMSState.blockCounter] = promoFormData;
+
+    globalCMSState.playground.onSchemaEdited(newJsonSchema);
+    globalCMSState.playground.onFormDataEdited(newFormData);
+    globalCMSState.playground.onUISchemaEdited(newUiSchema);
+
+    globalCMSState.blockCounter++;
+  }
+
+  render() {
+    return (
+      <div>
+        {/* <input type="button" onClick={this.addPromo} value="Add promo viewer" /> */}
+        <input
+          type="button"
+          onClick={this.addPromoEditor.bind(this)}
+          value="Add promo editor"
+        />
+        <input
+          type="button"
+          onClick={this.switchPreview.bind(this)}
+          value="Switch preview"
+        />
+      </div>
     );
   }
 }
@@ -472,6 +730,7 @@ class Playground extends Component {
       shareURL: null,
       FormComponent: withTheme({}),
     };
+    globalCMSState.playground = this;
   }
 
   componentDidMount() {
@@ -503,7 +762,7 @@ class Playground extends Component {
     this.onThemeSelected(theme, themes[theme]);
 
     // force resetting form component instance
-    this.setState({ form: false }, () =>
+    this.setState({ form: false }, () => {
       this.setState({
         ...data,
         form: true,
@@ -511,8 +770,8 @@ class Playground extends Component {
         ObjectFieldTemplate,
         uiSchema,
         extraErrors,
-      })
-    );
+      });
+    });
   };
 
   onSchemaEdited = schema => this.setState({ schema, shareURL: null });
@@ -606,6 +865,10 @@ class Playground extends Component {
     if (extraErrors) {
       templateProps.extraErrors = extraErrors;
     }
+
+    globalCMSState.jsonSchema = schema;
+    globalCMSState.uiSchema = uiSchema;
+    globalCMSState.formData = formData;
 
     return (
       <div className="container-fluid">
@@ -711,6 +974,9 @@ class Playground extends Component {
                   blockWithImage: CMSBlockWithImage,
                   paragraph: CMSParagraph,
                   appeals: CMSAppeals,
+                  CmsPromo: CMSPromo,
+                  CmsPromoEditor: CMSPromoEditor,
+                  CmsConstructor: CMSConstructor,
                 }}
                 validate={validate}
                 onBlur={(id, value) =>
